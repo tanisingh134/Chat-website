@@ -230,7 +230,7 @@
                 const urlParams = new URLSearchParams(window.location.search);
                 const invite = urlParams.get('invite');
                 
-                socketRef.current = io('https://advancechatapplication.onrender.com/', { withCredentials: true });
+                socketRef.current = io('https://chat-website-ogb4.onrender.com/', { withCredentials: true });
 
                 socketRef.current.on('connect', () => {
                     console.log('Connected to server');
@@ -308,7 +308,7 @@
             useEffect(() => {
                 if (isAuthenticated && username) {
                     // Generate invite link using username instead of socket ID
-                    const newInviteLink = `https://advancechatapplication.onrender.com/?invite=${username}`;
+                    const newInviteLink = `https://chat-website-ogb4.onrender.com/?invite=${username}`;
                     setInviteLink(newInviteLink);
                     if (qrRef.current && typeof QRCode !== 'undefined') {
                         qrRef.current.innerHTML = '';
