@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload Test</title>
+</head>
+<body>
+    <h1>File Upload Test</h1>
+    <p>This is a simple test to verify file handling works.</p>
+    
+    <h2>Test File Upload</h2>
+    <input type="file" id="fileInput" />
+    <button onclick="testFileUpload()">Test File Upload</button>
+    
+    <h2>Test Voice Recording</h2>
+    <button onclick="testVoiceRecording()">Start Recording</button>
+    <button onclick="stopVoiceRecording()" id="stopBtn" disabled>Stop Recording</button>
+    <audio id="audioPlayer" controls style="display: none;"></audio>
+    
+    <script>
+        let mediaRecorder = null;
+        let recording = false;
+        
+        function testFileUpload() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            
+            if (file) {
+                console.log('File selected:', file.name, file.type, file.size);
+                
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    console.log('File read successfully, size:', event.target.result.length);
+                    alert(`File "${file.name}" read successfully! Size: ${file.size} bytes`);
+                };
+                reader.onerror = () => {
+                    alert('Error reading file');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                alert('Please select a file first');
+            }
+        }
+        
+        async function testVoiceRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                recording = true;
+                
+                const chunks = [];
+                mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(chunks, { type: 'audio/webm' });
+                    const audioUrl = URL.createObjectURL(blob);
+                    document.getElementById('audioPlayer').src = audioUrl;
+                    document.getElementById('audioPlayer').style.display = 'block';
+                    console.log('Recording stopped, blob size:', blob.size);
+                    alert(`Voice recording completed! Size: ${blob.size} bytes`);
+                };
+                
+                mediaRecorder.start();
+                document.getElementById('stopBtn').disabled = false;
+                alert('Recording started...');
+                
+            } catch (error) {
+                console.error('Error starting recording:', error);
+                alert('Error accessing microphone: ' + error.message);
+            }
+        }
+        
+        function stopVoiceRecording() {
+            if (mediaRecorder && recording) {
+                mediaRecorder.stop();
+                recording = false;
+                document.getElementById('stopBtn').disabled = true;
+                
+                // Stop all tracks
+                if (mediaRecorder.stream) {
+                    mediaRecorder.stream.getTracks().forEach(track => track.stop());
+                }
+            }
+        }
+    </script>
+</body>
+</html>
+
+
